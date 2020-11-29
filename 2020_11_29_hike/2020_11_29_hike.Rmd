@@ -6,25 +6,78 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.height = 12)
 ```
 
-## R Markdown
+## Dataset downloading and description
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Today, we analyze [Washington Trails Association](https://www.wta.org/go-outside/hikes?b_start:int=1) data that were collected by [TidyX](https://bit.ly/TidyX_Ep35) crew. It can be downloaded from [Tidy Tuesday Github page](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-11-24/readme.md) or by using `tidytuesdayR` package.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+library(tidyverse)
+library(hrbrthemes)
+tuesdata <- tidytuesdayR::tt_load('2020-11-24')
+hike_data <- tuesdata$hike_data
 ```
 
-## Including Plots
+## Preprocessing
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+hike_clean <- hike_data %>%
+  mutate(id = row_number(), .before = everything()) %>%
+  separate(col = location, 
+           into = c("region", "area"),
+           sep = "\\s--\\s",
+           fill = "right") %>%
+  separate(col = length,
+           into = c("length_miles", "type"),
+           sep = "\\smiles,?\\s(?:of\\s)?") %>% 
+  type_convert() %>%
+  mutate(rating = na_if(rating, 0))
+  
+skimr::skim(hike_clean)  
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+We unnest list-column to long data and then use `pivot_wider()` to create new multiple columns.
+
+```{r}
+hike_long <- hike_clean %>%
+  unnest(cols = features) 
+
+hike_wide <- hike_long %>%
+  mutate(value = TRUE) %>%
+  pivot_wider(names_from = features, 
+              values_from = value,
+              values_fill = FALSE)
+```
+
+Then, we use across to calculate ratio by region on these multiple columns.
+
+```{r}
+features_ratio_by_region <- hike_wide %>%
+  group_by(region) %>%
+  summarise(across(`Dogs allowed on leash`:Summits, mean)) %>%
+  pivot_longer(cols = `Dogs allowed on leash`:Summits,
+               names_to = "features",
+               values_to = "ratio") %>%
+  arrange(region, features)
+```
+
+## Visualization
+
+```{r}
+features_ratio_by_region %>%
+  ggplot() +
+  geom_col(aes(x = region, y = ratio, fill = region)) +
+  coord_polar(clip = "off") +
+  facet_wrap(~features) +
+  scale_y_continuous(labels = scales::percent, limits = c(0,1)) +
+  guides(fill = FALSE) +
+  labs(x = "",
+       y = "",
+       title = "Which region fits your hiking habits",
+       subtitle = "Ratio of trail features by Washington regions",
+       caption = "Created by Ivan Pozdniakov for Тайди Стрим\nData from 2020-11-24 Tidy Tuesday: https://www.tidytuesday.com") +
+  theme_ipsum(base_size = 5)
+```
+
