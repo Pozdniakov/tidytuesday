@@ -1,0 +1,87 @@
+---
+title: "2020_12_13_100women"
+author: "Pozdniakov Ivan"
+date: "12/13/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Upload data
+
+```{r}
+library(tidyverse)
+```
+```{r}
+tuesdata <- tidytuesdayR::tt_load(2020, week = 50)
+
+women <- tuesdata$women
+```
+
+##Preprocessing
+
+```{r}
+women 
+women %>%
+  count(category)
+women <- women %>%
+  filter(name != "Unsung hero") #delete Unsung hero (woman with no name/country etc.)
+women
+women %>%
+  count(category)
+```
+
+##Add coordinates for countries
+
+```{r, cache=TRUE}
+library(tidygeocoder)
+women <- women %>%
+  tidygeocoder::geocode(address = country, method = "osm")
+```
+
+##`leaflet` interactive map
+
+Load `{leaflet}` package:
+
+```{r}
+library(leaflet)
+```
+
+Select palette "Set1" from `{RColorBrewer}`:
+
+```{r}
+pal <- colorFactor(palette = "Set1", women$category)
+```
+
+Customize pop-up text with `{glue}`
+
+```{r}
+library(glue)
+women <- women %>%
+  mutate(description_html = glue('<figure>
+  <img src={img} width=120>
+  <figcaption>
+  <b>{name}</b> ({country}) <br>
+  Category: <b>{category}</b> <br>
+  Role/profession: <b>{role}</b>
+  </figcaption>
+</figure>'))
+```
+
+Creating `leaflet` object:
+
+```{r, fig.width = 9.5, fig.height = 6}
+# simple_leaflet <- leaflet()
+# str(simple_leaflet) #looks like a list with classes "leaflet", "htmlwidget"
+leaflet(data = women) %>%
+  addProviderTiles(providers$Stamen.Terrain) %>%
+  addCircleMarkers(lng = ~long, lat = ~lat, clusterOptions = markerClusterOptions(),
+                   color = ~pal(category), opacity = 0.9, fillOpacity = 0.6, radius = 12,
+                   popup = ~description_html) %>%
+  addLegend("topright", pal = pal, values = ~category,
+    title = "Category",
+    opacity = 1)
+```
+
