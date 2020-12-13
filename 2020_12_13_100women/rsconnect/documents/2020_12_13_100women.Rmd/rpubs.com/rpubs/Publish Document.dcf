@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/703974/5ddf11e6772e4f65b1374326b39cc040
+bundleId: https://api.rpubs.com/api/v1/document/703974/5ddf11e6772e4f65b1374326b39cc040
+url: http://rpubs.com/Pozdniakov/703974
+when: 1607883421.78157

@@ -5265,7 +5265,9 @@ summary {
 <pre><code>## 
 ##  Downloading file 1 of 1: `women.csv`</code></pre>
 <pre class="r"><code>women &lt;- tuesdata$women</code></pre>
-<p>##Preprocessing</p>
+</div>
+<div id="preprocessing" class="section level2">
+<h2>Preprocessing</h2>
 <pre class="r"><code>women </code></pre>
 <pre><code>## # A tibble: 100 x 6
 ##    name     img               category  country  role      description          
@@ -5317,11 +5319,15 @@ women</code></pre>
 ## 2 Identity      17
 ## 3 Knowledge     32
 ## 4 Leadership    29</code></pre>
-<p>##Add coordinates for countries</p>
+</div>
+<div id="add-coordinates-for-countries" class="section level2">
+<h2>Add coordinates for countries</h2>
 <pre class="r"><code>library(tidygeocoder)
 women &lt;- women %&gt;%
   tidygeocoder::geocode(address = country, method = &quot;osm&quot;)</code></pre>
-<p>##<code>leaflet</code> interactive map</p>
+</div>
+<div id="leaflet-interactive-map" class="section level2">
+<h2><code>leaflet</code> interactive map</h2>
 <p>Load <code>{leaflet}</code> package:</p>
 <pre class="r"><code>library(leaflet)</code></pre>
 <p>Select palette “Set1” from <code>{RColorBrewer}</code>:</p>

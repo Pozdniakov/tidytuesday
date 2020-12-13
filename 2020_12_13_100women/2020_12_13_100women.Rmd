@@ -20,7 +20,7 @@ tuesdata <- tidytuesdayR::tt_load(2020, week = 50)
 women <- tuesdata$women
 ```
 
-##Preprocessing
+## Preprocessing
 
 ```{r}
 women 
@@ -33,7 +33,7 @@ women %>%
   count(category)
 ```
 
-##Add coordinates for countries
+## Add coordinates for countries
 
 ```{r, cache=TRUE}
 library(tidygeocoder)
@@ -41,7 +41,7 @@ women <- women %>%
   tidygeocoder::geocode(address = country, method = "osm")
 ```
 
-##`leaflet` interactive map
+## `leaflet` interactive map
 
 Load `{leaflet}` package:
 
