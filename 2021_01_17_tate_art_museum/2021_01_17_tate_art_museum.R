@@ -120,14 +120,14 @@ art70_00 %>%
 art_full <- artwork %>%
   filter(medium == "Oil paint on canvas") %>%
   drop_na(thumbnailUrl) %>%
-  mutate(dom_colours = map(thumbnailUrl, possibly(get_dominant_hex_from_url, NA), 16))
+  mutate(dom_colours = map(thumbnailUrl, possibly(get_dominant_hex_from_url, NA), 3))
 beepr::beep()
 
 # art_full %>%
 #   unnest() %>%
-#   write_csv("2021_01_17_tate_art_museum/dominant_colours_full.csv")
+#   write_csv("2021_01_17_tate_art_museum/dominant3_colours_full.csv")
 
-art_full_unnested <- read_csv("2021_01_17_tate_art_museum/dominant_colours_full.csv")
+art_full_unnested <- read_csv("2021_01_17_tate_art_museum/dominant3_colours_full.csv")
 
 
 dom_colours_by_year <- art_full_unnested %>%
@@ -158,3 +158,22 @@ poster <- dom_colours_by_year %>%
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank())
+
+ggsave("2021_01_17_tate_art_museum/poster3cols_XX.png", plot = poster)
+
+poster_18_20 <- dom_colours_by_year %>%
+  filter(year > 1750 & year <= 2000) %>%
+  ggplot(aes(x = year, fill = dom_colours)) +
+  geom_bar(position = "fill") +
+  scale_fill_identity() +
+  coord_flip() +
+  scale_x_reverse(minor_breaks = NULL) +
+  labs(title = "Evolution of oil paints dominant colours",
+       subtitle = "Tate Art Museum, 1751 - 2000 years",
+       caption = "Воскресный скRинкаст \nData from Tidy Tuesday Art Collections dataset \nhttps://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-01-12/readme.md") +
+  theme_minimal() +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+ggsave("2021_01_17_tate_art_museum/poster3cols_XVIII_XX.png", plot = poster_18_20)
