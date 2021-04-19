@@ -51,7 +51,7 @@ postal_clean %>%
                  colour = Established_decade), alpha =  0.1, size = 0.25) +
   #scale_colour_viridis_c(direction = -1) +
   coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
-  labs(title = "Established post offices in US by decade",
+  labs(title = "Established post offices in US by centuries",
        caption = "Воскресный СкRинкаст 18.04.2021: US Post Offices \n  https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-04-13/readme.md") +
   theme_void()+
   theme(legend.position = "bottom",
@@ -74,7 +74,7 @@ postal_clean %>%
   ) +
   scale_colour_gradientn(colours = set1_cols)
 
-
+ggsave("post_offices_by_centuries.png", scale = 2.4)
 
 gganim <- postal_clean %>%
   filter(!State %in% c("AK", "HI")) %>%
