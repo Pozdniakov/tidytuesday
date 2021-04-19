@@ -1,4 +1,5 @@
 library(tidyverse)
+library(gganimate)  
 
 postal <- readr::read_csv("https://raw.githubusercontent.com/cblevins/us-post-offices/main/us-post-offices-random-coords.csv", 
                           guess_max = 100000)
@@ -73,7 +74,7 @@ postal_clean %>%
   ) +
   scale_colour_gradientn(colours = set1_cols)
 
-library(gganimate)  
+
 
 gganim <- postal_clean %>%
   filter(!State %in% c("AK", "HI")) %>%
@@ -162,9 +163,7 @@ postal_long %>%
   ) +
   scale_colour_gradientn(colours = set1_cols)
 
-postal_clean %>%
-  count(Discontinued > 1970)
-
 anim_save("post_office_animation.gif")
 
-postal_clean
+postal_clean %>%
+  count(Discontinued > 1970)
