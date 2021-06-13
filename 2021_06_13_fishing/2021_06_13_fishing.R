@@ -52,7 +52,7 @@ fish_top %>%
   left_join(species_label_dict) %>%
   ggplot(aes(x = year, y = amounts)) +
   geom_line() +
-  labs(title = "Fish production in U.S. by years",
+  labs(title = "Fish production in U.S. (Great Lakes) by years",
        x = "Year",
        y = "Production amounts (thousand pounds)",
        caption = "Воскресный СкRинкаст 13.06.2021: Commercial Fishing \n  https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-06-08/readme.md") +
