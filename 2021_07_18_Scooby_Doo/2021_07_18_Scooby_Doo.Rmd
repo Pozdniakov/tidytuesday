@@ -1,0 +1,85 @@
+---
+title: "Воскресный СкRинкаст"
+author: "Pozdniakov Ivan"
+date: "7/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Preprocessing
+
+```{r}
+library(tidyverse)
+library(echarts4r)
+
+scoobydoo <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-13/scoobydoo.csv',
+                             na = c("NA", " ", "NULL"))
+
+scoobydoo %>%
+  count(monster_real)
+
+scoobydoo
+
+skimr::skim(scoobydoo)
+
+scoobydoo %>%
+  count(series_name, season)
+
+monster_cum <- scoobydoo %>%
+  arrange(date_aired, index) %>%
+  select(index, series_name, season, title, date_aired, starts_with("caught_")) %>%
+  pivot_longer(cols = starts_with("caught_"), names_to = "character", values_to = "caught_monster") %>%
+  #drop_na(caught_monster) %>%
+  mutate(caught_monster = replace_na(caught_monster, FALSE)) %>%
+  group_by(character) %>%
+  mutate(monster_caught_cum = cumsum(caught_monster)) %>%
+  ungroup() %>%
+  mutate(character = character %>% str_remove("caught_") %>% str_to_title() %>% str_replace("Not", "Not Caught"))
+```
+
+## Bars animation without labels
+
+```{r}
+monster_cum %>%
+  #filter(series_name == "Scooby Doo, Where Are You!") %>%
+  group_by(date_aired) %>%
+  e_charts(character, timeline = TRUE) %>%
+  e_bar(monster_caught_cum, 
+        itemStyle = list(color = "#e78b9a")) %>%
+  e_timeline_opts(loop = FALSE, playInterval = 50, autoPlay = FALSE) %>%
+  e_flip_coords() %>%
+  e_title(text = "Caught monsters by Scooby Doo characters",
+          subtext = "Воскресный СкRинкаст 18.07.2021: Scooby Doo data",
+          sublink = "https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-07-13/readme.md")
+
+```
+
+
+
+## Bars animation with labels
+
+```{r}
+monster_cum %>%
+  #filter(series_name == "Scooby Doo, Where Are You!") %>%
+  group_by(date_aired) %>%
+  e_charts(character, timeline = TRUE) %>%
+  e_bar(monster_caught_cum, 
+        itemStyle = list(color = "#e78b9a"),
+        label = list(show = TRUE,
+                     color = "#000000",
+                     fontWeight = 'bold',
+                     fontSize = 14,
+                     position = "right",
+                     #backgroundColor = "#e78b9a",
+                     formatter = '{@[1]}: {@[0]}')) %>%
+  e_timeline_opts(loop = FALSE, playInterval = 50, autoPlay = FALSE) %>%
+  e_flip_coords() %>%
+  e_title(text = "Caught monsters by Scooby Doo characters",
+          subtext = "Воскресный СкRинкаст 18.07.2021: Scooby Doo data",
+          sublink = "https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-07-13/readme.md")
+
+```
+
